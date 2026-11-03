@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# uv / virtual environments
+.venv/
+venv/
+env/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# VS Code (keep the shared debug configuration)
+.vscode/*
+!.vscode/launch.json
+
+# OS files
+.DS_Store
+Thumbs.db
