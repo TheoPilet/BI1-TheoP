@@ -97,7 +97,16 @@ Once running:
 3. Run and Debug -> *FastAPI: Debug*
 4. Call http://127.0.0.1:8000/health, the execution stops on the breakpoint
 
-Tests can also be run and debugged from the VS Code *Testing* panel (configure pytest with `tests/` as the test folder).
+#### tests
+.vscode/settings.json
+```json
+{
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": ["tests"]
+}
+```
+Tests can also be run and debugged from the VS Code *Testing* panel. The settings above make VS Code use pytest on the `tests/` folder instead of unittest.
 
 ### On integration environment
 _To be defined._
