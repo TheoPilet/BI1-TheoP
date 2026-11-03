@@ -19,6 +19,7 @@ env/
 # VS Code (keep the shared debug configuration)
 .vscode/*
 !.vscode/launch.json
+!.vscode/settings.json
 
 # OS files
 .DS_Store
