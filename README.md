@@ -108,6 +108,27 @@ Once running:
 ```
 Tests can also be run and debugged from the VS Code *Testing* panel. The settings above make VS Code use pytest on the `tests/` folder instead of unittest.
 
+#### Linter and formatter
+The project uses [Ruff](https://docs.astral.sh/ruff/) as linter and formatter. It is installed as a dev dependency (`uv add --dev ruff`).
+
+Check the code:
+```bash
+uv run ruff check .
+```
+
+Fix the issues automatically when possible:
+```bash
+uv run ruff check --fix .
+```
+
+Check or apply the formatting:
+```bash
+uv run ruff format --check .
+uv run ruff format .
+```
+
+In VS Code, install the [Ruff extension](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff). The `.vscode/settings.json` file already makes Ruff the formatter for Python files, formats on save and applies the safe fixes and import sorting. Pylance type checking is set to `basic` in the same file.
+
 ### On integration environment
 _To be defined._
 
