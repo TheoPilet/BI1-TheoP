@@ -35,7 +35,11 @@ This first version is a REST API built with **Python** and **FastAPI**, managed 
 | [Python](https://www.python.org/downloads/) | 3.13 | Language runtime (can be installed by uv) |
 | [uv](https://docs.astral.sh/uv/getting-started/installation/) | 0.9 | Package and project manager |
 | [VS Code](https://code.visualstudio.com/download) | v1.108.2 | IDE used |
-| [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) | latest | VS Code extension for debugging and testing |
+| [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) | latest | VS Code extension for running, testing and managing Python environments |
+| [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance) | latest | Language server: IntelliSense, navigation and type checking |
+| [Python Debugger](https://marketplace.visualstudio.com/items?itemName=ms-python.debugpy) | latest | Debugging support (breakpoints, step-through) |
+| [Ruff](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff) | latest | Linter and formatter used by the project |
+| [Mypy Type Checker](https://marketplace.visualstudio.com/items?itemName=ms-python.mypy-type-checker) | latest | Static type checking in strict mode (uses the project's mypy) |
 | [Fedora](https://www.fedoraproject.org/kde/download/) | 44 | Local dev machine |
 
 Install uv on Linux/macOS:
@@ -106,7 +110,55 @@ Once running:
   "python.testing.pytestArgs": ["tests"]
 }
 ```
-Tests can also be run and debugged from the VS Code *Testing* panel. The settings above make VS Code use pytest on the `tests/` folder instead of unittest.
+Tests can also be run and debugged from the VS Code *Testing* panel. The settings above make VS Code use pytest on the `tests/` folder.
+
+#### Linter and formatter
+The project uses [Ruff](https://docs.astral.sh/ruff/) as linter and formatter. It is installed as a dev dependency (`uv add --dev ruff`).
+
+Check the code:
+```bash
+uv run ruff check .
+```
+
+Fix the issues automatically when possible:
+```bash
+uv run ruff check --fix .
+```
+
+Check or apply the formatting:
+```bash
+uv run ruff format --check .
+uv run ruff format .
+```
+
+In VS Code, install the [Ruff extension](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff). The `.vscode/settings.json` file already makes Ruff the formatter for Python files, formats on save and applies the safe fixes and import sorting:
+```json
+{
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
+  }
+}
+```
+
+#### Type checking
+The project enforces types with [mypy](https://mypy.readthedocs.io/) in strict mode. It is installed as a dev dependency (`uv add --dev mypy`) and configured in `pyproject.toml` (`[tool.mypy]`).
+
+Check the types from the command line:
+```bash
+uv run mypy
+```
+
+In VS Code, the [Mypy Type Checker extension](https://marketplace.visualstudio.com/items?itemName=ms-python.mypy-type-checker) reports the same errors in the editor. Pylance is also set to `strict` in `.vscode/settings.json`:
+```json
+{
+  "python.analysis.typeCheckingMode": "strict"
+}
+```
 
 ### On integration environment
 _To be defined._
@@ -117,23 +169,18 @@ The project is organized **by file type**, following the layout recommended in t
 ```bash
 .
 ├── .vscode/
-│   └── launch.json
+│   ├── launch.json
+│   └── settings.json
 ├── app/
-│   ├── __init__.py
 │   ├── main.py              # FastAPI app creation, router registration
 │   ├── dependencies.py      # Shared dependencies (used with Depends())
 │   ├── core/
-│   │   ├── __init__.py
 │   │   └── config.py        # Settings / environment configuration
 │   ├── routers/
-│   │   ├── __init__.py
 │   │   └── health.py        # GET /health
-│   ├── services/
-│   │   └── __init__.py      # Business logic (no HTTP concerns)
-│   ├── schemas/
-│   │   └── __init__.py      # Pydantic models (API input / output)
-│   └── models/
-│       └── __init__.py      # Persistence models (database tables)
+│   ├── services/            # Business logic (no HTTP concerns)
+│   ├── schemas/             # Pydantic models (API input / output)
+│   └── models/              # Persistence models (database tables)
 ├── tests/
 │   └── test_health.py       # Functional test of /health
 ├── pyproject.toml           # Project metadata and dependencies
