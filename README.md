@@ -35,7 +35,10 @@ This first version is a REST API built with **Python** and **FastAPI**, managed 
 | [Python](https://www.python.org/downloads/) | 3.13 | Language runtime (can be installed by uv) |
 | [uv](https://docs.astral.sh/uv/getting-started/installation/) | 0.9 | Package and project manager |
 | [VS Code](https://code.visualstudio.com/download) | v1.108.2 | IDE used |
-| [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) | latest | VS Code extension for debugging and testing |
+| [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) | latest | VS Code extension for running, testing and managing Python environments |
+| [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance) | latest | Language server: IntelliSense, navigation and type checking |
+| [Python Debugger](https://marketplace.visualstudio.com/items?itemName=ms-python.debugpy) | latest | Debugging support (breakpoints, step-through) |
+| [Ruff](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff) | latest | Linter and formatter used by the project |
 | [Fedora](https://www.fedoraproject.org/kde/download/) | 44 | Local dev machine |
 
 Install uv on Linux/macOS:
