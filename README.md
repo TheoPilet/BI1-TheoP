@@ -16,7 +16,10 @@ This first version is a REST API built with **Python** and **FastAPI**, managed 
 | Framework | FastAPI | Async, type hints, built-in validation, auto-generated OpenAPI docs |
 | Package manager | uv | Fast, handles Python versions, virtualenv and lockfile in one tool |
 | Tests | pytest + httpx | Standard for FastAPI (`TestClient`) |
-| API documentation | Swagger UI (built into FastAPI) | Auto-generated from code at `/docs` |
+| API documentation | Swagger UI (built into FastAPI) | Auto-generated from code at `/docs` (dev only) |
+| Linter / formatter | Ruff | Fast, replaces flake8, isort and black in one tool |
+| Type checking | mypy (strict) | Static type checking, same result in the terminal and in VS Code |
+| Configuration | pydantic-settings | Reads settings (such as `ENVIRONMENT`) from environment variables, typed and validated |
 
 ### Resources studied
 - [FastAPI – First steps](https://fastapi.tiangolo.com/tutorial/first-steps/)
@@ -25,6 +28,9 @@ This first version is a REST API built with **Python** and **FastAPI**, managed 
 - [FastAPI – Metadata and docs URLs](https://fastapi.tiangolo.com/tutorial/metadata/)
 - [uv – Working on projects](https://docs.astral.sh/uv/guides/projects/)
 - [pytest documentation](https://docs.pytest.org/en/stable/)
+- [Ruff documentation](https://docs.astral.sh/ruff/)
+- [mypy documentation](https://mypy.readthedocs.io/)
+- [pydantic-settings documentation](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
 - [VS Code – Python debugging](https://code.visualstudio.com/docs/python/debugging)
 - [VS Code – Python testing](https://code.visualstudio.com/docs/python/testing)
 
@@ -65,17 +71,19 @@ uv sync
 ```
 
 #### Run
-Development mode, reloads automatically when a file is saved:
+The mode is chosen with the `ENVIRONMENT` variable (`dev` or `prod`, default `prod`). It controls the API documentation: `/docs`, `/redoc` and `/openapi.json` are only available in `dev`.
+
+Development mode, reloads automatically when a file is saved, documentation enabled:
 ```bash
-uv run fastapi dev app/main.py
+ENVIRONMENT=dev uv run fastapi dev app/main.py
 ```
 
-Normal mode, without auto-reload (as in production). After a code change, stop the server with `Ctrl+C` and start it again:
+Normal mode, without auto-reload and without documentation (as in production). After a code change, stop the server with `Ctrl+C` and start it again:
 ```bash
-uv run fastapi run app/main.py
+ENVIRONMENT=prod uv run fastapi run app/main.py
 ```
 
-Both commands serve the same API and documentation on `http://127.0.0.1:8000`.
+Both commands serve the API on `http://127.0.0.1:8000`. The `/health` route is available in both modes.
 
 #### Tests
 ```bash
@@ -84,8 +92,8 @@ uv run pytest
 
 Once running:
 - Health check: http://127.0.0.1:8000/health
-- Swagger UI: http://127.0.0.1:8000/docs
-- OpenAPI schema: http://127.0.0.1:8000/openapi.json
+- Swagger UI (dev only): http://127.0.0.1:8000/docs
+- OpenAPI schema (dev only): http://127.0.0.1:8000/openapi.json
 
 #### debug
 .vscode/launch.json
