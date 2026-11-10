@@ -65,9 +65,17 @@ uv sync
 ```
 
 #### Run
+Development mode, reloads automatically when a file is saved:
 ```bash
 uv run fastapi dev app/main.py
 ```
+
+Normal mode, without auto-reload (as in production). After a code change, stop the server with `Ctrl+C` and start it again:
+```bash
+uv run fastapi run app/main.py
+```
+
+Both commands serve the same API and documentation on `http://127.0.0.1:8000`.
 
 #### Tests
 ```bash
