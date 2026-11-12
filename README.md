@@ -62,8 +62,9 @@ cp .env.example .env
 | Variable | Values | Description |
 | --- | --- | --- |
 | `ENVIRONMENT` | `dev` or `prod` (default `prod`) | `dev` enables the API documentation (`/docs`, `/redoc`, `/openapi.json`) |
+| `HOST` | IP address (default `127.0.0.1`) | Address the server listens on (used by `app.main.server`) |
+| `PORT` | integer (default `8000`) | Port the server listens on (used by `app.main.server`) |
 
-The API listens on `http://127.0.0.1:8000` by default.
 
 ## Deployment
 ### On dev environment
@@ -84,15 +85,13 @@ The mode is chosen with the `ENVIRONMENT` variable (`dev` or `prod`, default `pr
 
 Development mode, reloads automatically when a file is saved, documentation enabled:
 ```bash
-uv run fastapi dev app/main.py
+uv run fastapi dev app/main/app.py
 ```
 
 Normal mode, without auto-reload and without documentation (as in production). The variable in the command overrides the `.env` file. After a code change, stop the server with `Ctrl+C` and start it again:
 ```bash
-ENVIRONMENT=prod uv run fastapi run app/main.py
+ENVIRONMENT=prod uv run python -m app.main.server
 ```
-
-Both commands serve the API on `http://127.0.0.1:8000`.
 
 #### Tests
 ```bash
@@ -114,8 +113,8 @@ Once running:
       "name": "FastAPI: Debug",
       "type": "debugpy",
       "request": "launch",
-      "module": "uvicorn",
-      "args": ["app.main:app"],
+      "module": "app.main.server",
+      "args": [],
       "justMyCode": true
     }
   ]
@@ -195,7 +194,9 @@ The project is organized **by layer**, the same architecture for every ETL micro
 .
 ├── .vscode/
 ├── app/
-│   ├── main.py                       # FastAPI app creation, router registration
+│   ├── main/
+│   │   ├── app.py                    # FastAPI app creation, router registration
+│   │   └── server.py                 # Starts the server (depends only on app.py)
 │   ├── container.py                  # Composition root: wires the layers together (Depends)
 │   ├── config/
 │   │   └── settings.py               # Settings / environment configuration
