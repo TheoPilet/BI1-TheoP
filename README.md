@@ -5,9 +5,9 @@ This repository contains my first version of a micro-service, built as part of
 the SI-T2a BI1. The class project consists of implementing an
 [ETL](https://aws.amazon.com/compare/the-difference-between-etl-and-elt/)
 using a
-[microservices-oriented architecture](https://aws.amazon.com/microservices/). Each student is responsible for one or two micro-services.
+[microservices-oriented architecture](https://aws.amazon.com/microservices/). Each student is responsible for a micro-service.
 
-This first version is a REST API built with **Python** and **FastAPI**, managed with **uv**. It exposes a `GET /health` route, is covered by automated tests, and provides auto-generated Swagger/OpenAPI documentation.
+This first version is a REST API built with **Python** and **FastAPI**, managed with **uv**. The routes are covered by automated tests, and provides auto-generated Swagger/OpenAPI documentation: the routes can be consulted at `/docs` (dev environment only).
 
 ## Technology choice
 | Item | Choice | Why |
@@ -16,7 +16,10 @@ This first version is a REST API built with **Python** and **FastAPI**, managed 
 | Framework | FastAPI | Async, type hints, built-in validation, auto-generated OpenAPI docs |
 | Package manager | uv | Fast, handles Python versions, virtualenv and lockfile in one tool |
 | Tests | pytest + httpx | Standard for FastAPI (`TestClient`) |
-| API documentation | Swagger UI (built into FastAPI) | Auto-generated from code at `/docs` |
+| API documentation | Swagger UI (built into FastAPI) | Auto-generated from code at `/docs` (dev only) |
+| Linter / formatter | Ruff | Fast, replaces flake8, isort and black in one tool |
+| Type checking | mypy (strict) | Static type checking, same result in the terminal and in VS Code |
+| Configuration | pydantic-settings | Reads settings (such as `ENVIRONMENT`) from environment variables, typed and validated |
 
 ### Resources studied
 - [FastAPI – First steps](https://fastapi.tiangolo.com/tutorial/first-steps/)
@@ -25,6 +28,9 @@ This first version is a REST API built with **Python** and **FastAPI**, managed 
 - [FastAPI – Metadata and docs URLs](https://fastapi.tiangolo.com/tutorial/metadata/)
 - [uv – Working on projects](https://docs.astral.sh/uv/guides/projects/)
 - [pytest documentation](https://docs.pytest.org/en/stable/)
+- [Ruff documentation](https://docs.astral.sh/ruff/)
+- [mypy documentation](https://mypy.readthedocs.io/)
+- [pydantic-settings documentation](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
 - [VS Code – Python debugging](https://code.visualstudio.com/docs/python/debugging)
 - [VS Code – Python testing](https://code.visualstudio.com/docs/python/testing)
 
@@ -48,7 +54,17 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 ### Configuration
-No configuration is required for this first version. The API listens on `http://127.0.0.1:8000` by default.
+Copy the example environment file and adapt it if needed:
+```bash
+cp .env.example .env
+```
+
+| Variable | Values | Description |
+| --- | --- | --- |
+| `ENVIRONMENT` | `dev` or `prod` (default `prod`) | `dev` enables the API documentation (`/docs`, `/redoc`, `/openapi.json`) |
+| `HOST` | IP address (default `127.0.0.1`) | Address the server listens on (used by `app.main.server`) |
+| `PORT` | integer (default `8000`) | Port the server listens on (used by `app.main.server`) |
+
 
 ## Deployment
 ### On dev environment
@@ -65,17 +81,17 @@ uv sync
 ```
 
 #### Run
-Development mode, reloads automatically when a file is saved:
+The mode is chosen with the `ENVIRONMENT` variable (`dev` or `prod`, default `prod`), read from the `.env` file (see [Configuration](#configuration)). It controls the API documentation: `/docs`, `/redoc` and `/openapi.json` are only available in `dev`.
+
+Development mode, reloads automatically when a file is saved, documentation enabled:
 ```bash
-uv run fastapi dev app/main.py
+uv run fastapi dev app/main/app.py
 ```
 
-Normal mode, without auto-reload (as in production). After a code change, stop the server with `Ctrl+C` and start it again:
+Normal mode, without auto-reload and without documentation (as in production). The variable in the command overrides the `.env` file. After a code change, stop the server with `Ctrl+C` and start it again:
 ```bash
-uv run fastapi run app/main.py
+ENVIRONMENT=prod uv run python -m app.main.server
 ```
-
-Both commands serve the same API and documentation on `http://127.0.0.1:8000`.
 
 #### Tests
 ```bash
@@ -84,8 +100,8 @@ uv run pytest
 
 Once running:
 - Health check: http://127.0.0.1:8000/health
-- Swagger UI: http://127.0.0.1:8000/docs
-- OpenAPI schema: http://127.0.0.1:8000/openapi.json
+- Swagger UI (dev only): http://127.0.0.1:8000/docs
+- OpenAPI schema (dev only): http://127.0.0.1:8000/openapi.json
 
 #### debug
 .vscode/launch.json
@@ -97,15 +113,15 @@ Once running:
       "name": "FastAPI: Debug",
       "type": "debugpy",
       "request": "launch",
-      "module": "uvicorn",
-      "args": ["app.main:app"],
+      "module": "app.main.server",
+      "args": [],
       "justMyCode": true
     }
   ]
 }
 ```
 1. Select the interpreter of the project (`Ctrl+Shift+P` -> *Python: Select Interpreter* -> `bi1-theop .venv/bin/python`)
-2. Set a breakpoint (for example in `app/routers/health.py`)
+2. Set a breakpoint (for example in `app/presentation/controllers/health_controller.py`)
 3. Run and Debug -> *FastAPI: Debug*
 4. Call http://127.0.0.1:8000/health, the execution stops on the breakpoint
 
@@ -172,40 +188,49 @@ In VS Code, the [Mypy Type Checker extension](https://marketplace.visualstudio.c
 _To be defined._
 
 ## Directory structure
-The project is organized **by file type**, following the layout recommended in the official FastAPI documentation: [Bigger Applications – Multiple Files](https://fastapi.tiangolo.com/tutorial/bigger-applications/).
+The project is organized **by layer**, the same architecture for every ETL micro-service (extract, transform, load or data warehouse). It is inspired by the structure given in class.
 
 ```bash
 .
 ├── .vscode/
-│   ├── launch.json
-│   └── settings.json
 ├── app/
-│   ├── main.py              # FastAPI app creation, router registration
-│   ├── dependencies.py      # Shared dependencies (used with Depends())
-│   ├── core/
-│   │   └── config.py        # Settings / environment configuration
-│   ├── routers/
-│   │   └── health.py        # GET /health
-│   ├── services/            # Business logic (no HTTP concerns)
-│   ├── schemas/             # Pydantic models (API input / output)
-│   └── models/              # Persistence models (database tables)
+│   ├── main/
+│   │   ├── app.py                    # FastAPI app creation, router registration
+│   │   └── server.py                 # Starts the server (depends only on app.py)
+│   ├── container.py                  # Composition root: wires the layers together (Depends)
+│   ├── config/
+│   │   └── settings.py               # Settings / environment configuration
+│   ├── presentation/                 # PUBLIC: what the other micro-services can call
+│   │   ├── routes.py                 # Groups all the controllers' routers
+│   │   ├── controllers/
+│   │   │   └── health_controller.py  # GET /health
+│   │   └── schemas/                  # Pydantic models (API input / output)
+│   ├── application/                  # PRIVATE: the work done to answer a request
+│   │   ├── services/                 # Business logic / orchestration (no HTTP)
+│   │   └── ports/                    # Interfaces needed from the outside world
+│   ├── domain/                       # Business entities and rules
+│   ├── infrastructure/               # Calls to the other micro-services
+│   │   └── clients/                  # Adapters implementing the application ports
+│   └── shared/                       # Helpers and utils used by all layers
 ├── tests/
-│   └── test_health.py       # Functional test of /health
-├── pyproject.toml           # Project metadata and dependencies
-├── uv.lock                  # Locked dependency versions
+├── pyproject.toml
+├── uv.lock
 └── README.md
 ```
 
-| Folder | Role |
+| Layer | Role |
 | --- | --- |
-| `routers/` | Controllers: receive the request, validate it, delegate to a service |
-| `services/` | Business logic, independent from HTTP |
-| `schemas/` | Pydantic schemas: the contract of the API |
-| `models/` | Persistence models (database entities) |
-| `core/` | Configuration and cross-cutting concerns |
-| `tests/` | Automated tests (pytest) |
+| `presentation/` | Exposed to the other micro-services: receives the request, validates it, delegates to the application |
+| `application/` | Private part: does the work to answer the request. Defines the *ports* (interfaces) it needs |
+| `domain/` | Entities and business rules, independent from everything else |
+| `infrastructure/` | Fetches what is needed from the other micro-services (HTTP clients, storage...) by implementing the ports |
+| `container.py` | Chooses which infrastructure implementation is given to the application |
+| `config/` | Configuration read from environment variables |
+| `shared/` | Cross-cutting helpers |
 
-> `services/`, `schemas/` and `models/` are empty for now: `/health` check service health. They will be filled as the ETL micro-service grows.
+Dependency rule: `presentation` -> `application` -> `domain`. `infrastructure` implements the ports of `application`, and only `container.py` knows both sides.
+
+> Most folders are empty for now: `/health` only needs a controller and a small service. They will be filled once the part of the ETL given to this micro-service is known.
 
 ## Collaborate
 To collaborate with us, please:

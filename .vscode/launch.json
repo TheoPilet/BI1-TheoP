@@ -5,8 +5,8 @@
       "name": "FastAPI: Debug",
       "type": "debugpy",
       "request": "launch",
-      "module": "uvicorn",
-      "args": ["app.main:app"],
+      "module": "app.main.server",
+      "args": [],
       "justMyCode": true
     }
   ]
