@@ -205,12 +205,12 @@ The project is organized **by layer**, the same architecture for every ETL micro
 │   │   ├── controllers/
 │   │   │   └── health_controller.py  # GET /health
 │   │   └── schemas/                  # Pydantic models (API input / output)
-│   ├── application/                  # PRIVATE: the work done to answer a request
+│   ├── orchestrator/                 # PRIVATE: the work done to answer a request
 │   │   ├── services/                 # Business logic / orchestration (no HTTP)
 │   │   └── ports/                    # Interfaces needed from the outside world
 │   ├── domain/                       # Business entities and rules
 │   ├── infrastructure/               # Calls to the other micro-services
-│   │   └── clients/                  # Adapters implementing the application ports
+│   │   └── clients/                  # Adapters implementing the orchestrator ports
 │   └── shared/                       # Helpers and utils used by all layers
 ├── tests/
 ├── pyproject.toml
@@ -220,15 +220,15 @@ The project is organized **by layer**, the same architecture for every ETL micro
 
 | Layer | Role |
 | --- | --- |
-| `presentation/` | Exposed to the other micro-services: receives the request, validates it, delegates to the application |
-| `application/` | Private part: does the work to answer the request. Defines the *ports* (interfaces) it needs |
+| `presentation/` | Exposed to the other micro-services: receives the request, validates it, delegates to the orchestrator |
+| `orchestrator/` | Private part: does the work to answer the request. Defines the *ports* (interfaces) it needs |
 | `domain/` | Entities and business rules, independent from everything else |
 | `infrastructure/` | Fetches what is needed from the other micro-services (HTTP clients, storage...) by implementing the ports |
-| `container.py` | Chooses which infrastructure implementation is given to the application |
+| `container.py` | Chooses which infrastructure implementation is given to the orchestrator |
 | `config/` | Configuration read from environment variables |
 | `shared/` | Cross-cutting helpers |
 
-Dependency rule: `presentation` -> `application` -> `domain`. `infrastructure` implements the ports of `application`, and only `container.py` knows both sides.
+Dependency rule: `presentation` -> `orchestrator` -> `domain`. `infrastructure` implements the ports of `orchestrator`, and only `container.py` knows both sides.
 
 > Most folders are empty for now: `/health` only needs a controller and a small service. They will be filled once the part of the ETL given to this micro-service is known.
 

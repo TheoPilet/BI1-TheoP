@@ -2,8 +2,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from app.application.services.health_service import HealthService
 from app.container import get_health_service
+from app.orchestrator.services.health_service import HealthService
 from app.presentation.schemas.health import HealthResponse
 
 router = APIRouter(tags=["health"])
