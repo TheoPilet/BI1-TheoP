@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from app.core.config import settings
-from app.routers import health
+from app.config.settings import settings
+from app.presentation.routes import api_router
 
 docs_enabled = settings.environment == "dev"
 
@@ -14,4 +14,4 @@ app = FastAPI(
     openapi_url="/openapi.json" if docs_enabled else None,
 )
 
-app.include_router(health.router)
+app.include_router(api_router)
