@@ -93,16 +93,6 @@ Normal mode, without auto-reload and without documentation (as in production). T
 ENVIRONMENT=prod uv run python -m app.main.server
 ```
 
-#### Tests
-```bash
-uv run pytest
-```
-
-Once running:
-- Health check: http://127.0.0.1:8000/health
-- Swagger UI (dev only): http://127.0.0.1:8000/docs
-- OpenAPI schema (dev only): http://127.0.0.1:8000/openapi.json
-
 #### debug
 .vscode/launch.json
 ```json
@@ -125,7 +115,44 @@ Once running:
 3. Run and Debug -> *FastAPI: Debug*
 4. Call http://127.0.0.1:8000/health, the execution stops on the breakpoint
 
+##### From the command line
+Without VS Code, use the Python debugger built into the standard library ([pdb](https://docs.python.org/3/library/pdb.html)), no extra dependency is needed.
+
+1. Add `breakpoint()` in the code where the execution must stop (for example in `app/presentation/controllers/health_controller.py`):
+```python
+def health_check(...) -> HealthResponse:
+    breakpoint()
+    return HealthResponse(status=service.get_status())
+```
+2. Start the server in the terminal (it must stay in the foreground):
+```bash
+uv run python -m app.main.server
+```
+3. Call http://127.0.0.1:8000/health from another terminal (`curl http://127.0.0.1:8000/health`) or from the browser. The server terminal shows the `(Pdb)` prompt.
+4. Use the pdb commands:
+
+| Command | Action |
+| --- | --- |
+| `n` | Next line (does not enter functions) |
+| `s` | Step into the function |
+| `c` | Continue until the next breakpoint |
+| `p <expr>` | Print a value (e.g. `p service`) |
+| `l` | List the code around the current line |
+| `q` | Quit the debugger |
+
+Remove the `breakpoint()` line before committing.
+
 #### tests
+```bash
+uv run pytest
+```
+
+Once running:
+- Health check: http://127.0.0.1:8000/health
+- Swagger UI (dev only): http://127.0.0.1:8000/docs
+- OpenAPI schema (dev only): http://127.0.0.1:8000/openapi.json
+
+
 .vscode/settings.json
 ```json
 {
