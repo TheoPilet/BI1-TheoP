@@ -140,7 +140,6 @@ uv run python -m app.main.server
 | `l` | List the code around the current line |
 | `q` | Quit the debugger |
 
-Remove the `breakpoint()` line before committing.
 
 #### tests
 ```bash
